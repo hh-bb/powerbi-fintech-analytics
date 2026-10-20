@@ -1,0 +1,23 @@
+/*
+==============================================================================
+MEASURE / MEDIDA: Tasa_Reintento_Exitoso
+------------------------------------------------------------------------------
+[EN] Objective: Measure conversion rate of failed payments recovered via retries.
+[ES] Objetivo: Medir tasa de éxito de reintentos tras un depósito inicialmente fallido.
+==============================================================================
+*/
+Tasa_Reintento_Exitoso = 
+// 1. [EN] Numerator: Retries that ended in confirmed successful deposits
+//    [ES] Numerador: Reintentos que culminaron en acreditación exitosa
+VAR ReintentosExitosos = 
+    SUM('Fact_User_Journeys'[reintentos_exitosos])
+
+// 2. [EN] Denominator: Total retry volume triggered after original failures
+//    [ES] Denominador: Total de reintentos iniciados tras fallas originales
+VAR TotalReintentos = 
+    SUM('Fact_User_Journeys'[cantidad_reintentos])
+
+// 3. [EN] Return resilient recovery percentage
+//    [ES] Retorno del ratio porcentual de recuperación
+RETURN 
+    DIVIDE(ReintentosExitosos, TotalReintentos, 0)
