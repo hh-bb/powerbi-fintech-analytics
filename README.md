@@ -55,10 +55,21 @@ The production Power BI report operates as a multi-tier analytics suite covering
 ### 🖼️ Repository Showcase Scope (Exhibited Assets)
 To balance comprehensive architectural demonstration with strict intellectual property and NDA constraints, this public repository features sanitized documentation and selected visual exports from the core analytical modules:
 
-- **Data Model Architecture (`docs/data-model.png`):** Complete constellation semantic model showing table relationships, single-direction filter propagation, and conformed dimensions.
-- **Executive Overview Tab (`docs/overview.png`):** Operational scorecard, withdrawal SLA gauges, and automation ratios.
-- **General Deposits Tab (`docs/dep-general.png`):** Ticket distribution histogram, statistical mode calculation, and multi-period variance tables.
-- **Retries & Recovery Tab (`docs/dep-reintentos.png`):** User journey recovery flows, retry latency distribution, and cross-payment method conversion matrix.
+* 🔗 **[Data Model Architecture (docs/data-model.png)](docs/data-model.png):** Complete constellation semantic model showing table relationships, single-direction filter propagation, and conformed dimensions.
+
+![Data Model Architecture](docs/data-model.png)
+
+* 🔗 **[Executive Overview Tab (docs/overview-tab.png)](docs/overview-tab.png):** Operational scorecard, withdrawal SLA gauges, and automation ratios.
+
+![Executive Overview Tab](docs/overview-tab.png)
+
+* 🔗 **[General Deposits Tab (docs/dep-general.png)](docs/dep-general.png):** Ticket distribution histogram, statistical mode calculation, and multi-period variance tables.
+
+![General Deposits Tab](docs/dep-general.png)
+
+* 🔗 **[Retries & Recovery Tab (docs/dep-reintentos.png)](docs/dep-reintentos.png):** User journey recovery flows, retry latency distribution, and cross-payment method conversion matrix.
+
+![Retries & Recovery Tab](docs/dep-reintentos.png)
 
 ---
 
@@ -105,7 +116,7 @@ To preserve VertiPaq memory and optimize analytical responsiveness, transformati
     ├── README.md                      # Architecture and operational documentation
     ├── docs/                          # Diagram exports and dashboard visual assets
     │   ├── data-model.png             # Constellation schema diagram
-    │   ├── overview.png               # Executive overview view
+    │   ├── overview-tab.png           # Executive overview view
     │   ├── dep-general.png            # General deposits & ticket sizing view
     │   └── dep-reintentos.png         # Payment retry and recovery matrix view
     ├── dax/                           # Documented DAX measures
@@ -172,10 +183,21 @@ El reporte productivo de Power BI funciona como una suite analítica modular com
 ### 🖼️ Alcance Publicado en el Portafolio (Muestra Adjunta)
 Con el propósito de conciliar la demostración de competencias técnicas avanzadas con los acuerdos de confidencialidad y propiedad intelectual (NDA), este repositorio público contiene documentación sanitizada y capturas seleccionadas de los módulos neurálgicos:
 
-- **Arquitectura del Modelo de Datos (`docs/data-model.png`):** Diagrama completo del esquema en constelación que ilustra las relaciones, el flujo unidireccional de filtros y las dimensiones conformadas.
-- **Solapa Overview (`docs/overview.png`):** Tablero ejecutivo con indicadores de salud transaccional, medidores de SLA y ratios de automatización.
-- **Solapa Depósitos General (`docs/dep-general.png`):** Histograma de tickets, cálculo de la moda estadística y matrices de variación temporal.
-- **Solapa Reintentos y Recuperación (`docs/dep-reintentos.png`):** Flujos de reintento, distribución de latencias y matriz de conmutación de medios de pago.
+* 🔗 **[Arquitectura del Modelo de Datos (docs/data-model.png)](docs/data-model.png):** Diagrama completo del esquema en constelación que ilustra las relaciones, el flujo unidireccional de filtros y las dimensiones conformadas.
+
+![Arquitectura del Modelo de Datos](docs/data-model.png)
+
+* 🔗 **[Solapa Overview (docs/overview-tab.png)](docs/overview-tab.png):** Tablero ejecutivo con indicadores de salud transaccional, medidores de SLA y ratios de automatización.
+
+![Solapa Overview](docs/overview-tab.png)
+
+* 🔗 **[Solapa Depósitos General (docs/dep-general.png)](docs/dep-general.png):** Histograma de tickets, cálculo de la moda estadística y matrices de variación temporal.
+
+![Solapa Depósitos General](docs/dep-general.png)
+
+* 🔗 **[Solapa Reintentos y Recuperación (docs/dep-reintentos.png)](docs/dep-reintentos.png):** Flujos de reintento, distribución de latencias y matriz de conmutación de medios de pago.
+
+![Solapa Reintentos y Recuperación](docs/dep-reintentos.png)
 
 ---
 
@@ -222,7 +244,7 @@ Para maximizar la eficiencia de memoria en VertiPaq, las transformaciones pesada
     ├── README.md                      # Documentación arquitectónica y operativa
     ├── docs/                          # Exportaciones de diagramas y capturas visuales
     │   ├── data-model.png             # Captura del modelo en constelación
-    │   ├── overview.png               # Captura de la vista ejecutiva
+    │   ├── overview-tab.png           # Captura de la vista ejecutiva
     │   ├── dep-general.png            # Captura de la vista de depósitos general
     │   └── dep-reintentos.png         # Captura de la vista de reintentos y recuperación
     ├── dax/                           # Medidas DAX documentadas línea por línea
@@ -242,4 +264,3 @@ Para maximizar la eficiencia de memoria en VertiPaq, las transformaciones pesada
 Todos los datos, marcas e infraestructura expuestos en este repositorio han sido sometidos a un proceso de sanitización:
 - Los nombres de marcas y cadenas de conexión a bases de datos han sido anonimizados mediante pseudónimos.
 - Las capturas de pantalla presentan datos agregados con cifras normalizadas con propósitos estrictamente demostrativos de portafolio.
-
