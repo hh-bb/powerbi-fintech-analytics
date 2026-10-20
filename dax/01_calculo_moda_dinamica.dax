@@ -1,0 +1,44 @@
+/*
+==============================================================================
+MEASURE / MEDIDA: Moda_Deposito_lite
+------------------------------------------------------------------------------
+[EN] Objective: Dynamically calculate the statistical mode (most frequent ticket)
+     without a native DAX MODE function. Optimized for pre-bucketed SQL aggregates.
+[ES] Objetivo: Calcular la moda estadística (ticket más frecuente) sin disponer
+     de función MODE nativa en DAX. Optimizado para buckets precalculados en SQL.
+==============================================================================
+*/
+Moda_Deposito_lite = 
+// 1. [EN] Check if successful deposits exist in current filter context
+//    [ES] Validar la existencia de depósitos exitosos en el contexto de filtro
+VAR DepositosExitosos = 
+    CALCULATE(
+        SUM(Fact_Transacciones[tx_count]), 
+        Fact_Transacciones[payment_type] = "DEPOSIT", 
+        Fact_Transacciones[state] = "SUCCESS"
+    )
+
+// 2. [EN] Locate the bracket with the highest frequency count
+//    [ES] Encontrar el rango de monto con mayor frecuencia acumulada
+VAR ValorModa = 
+    MINX(
+        TOPN(
+            1,
+            VALUES(Fact_Transacciones[amount_bucket_1k]),
+            CALCULATE(
+                SUM(Fact_Transacciones[tx_count]), 
+                Fact_Transacciones[payment_type] = "DEPOSIT", 
+                Fact_Transacciones[state] = "SUCCESS"
+            )
+        ), 
+        Fact_Transacciones[amount_bucket_1k]
+    )
+
+// 3. [EN] Return statistical mode protecting against blank/zero contexts
+//    [ES] Retornar la moda protegiendo la visualización de contextos vacíos
+RETURN
+    IF(
+        DepositosExitosos > 0,
+        ValorModa,
+        BLANK()
+    )
