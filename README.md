@@ -1,5 +1,5 @@
 # 💳 Cashier Core Analytics — End-to-End Fintech BI Solution
-*Auditoría Transaccional, Embudos de Conversión y SLAs Operativos*
+*Auditoría Transaccional, Embudos de Conversión, Recuperación y SLAs Operativos*
 
 [![Power BI](https://img.shields.io/badge/Power_BI-Desktop-F2C811?style=flat&logo=powerbi&logoColor=black)](https://powerbi.microsoft.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-AWS_RDS-336791?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -16,52 +16,88 @@
 ## 🌐 English Documentation
 
 ### 📌 Project Overview
-A production-grade Business Intelligence platform developed to monitor transactional health, conversion funnels, operational SLAs, and customer retention metrics for a centralized fintech checkout platform (*Cashier Core*) processing high-volume instant payments (PIX) and automated withdrawals.
+A production-grade Business Intelligence platform developed to monitor transactional health, conversion bottlenecks, ticket sizing, operational SLAs, and customer retention for a centralized fintech checkout platform (*Cashier Core*) processing instant payment methods (PIX) and withdrawal transactions.
 
-### 🎯 Core Business Objectives
-- **Transactional Reliability:** Monitor approval, rejection, and drop-off rates across architectural layers: Gateway/Bank (`PSP`), checkout interface validation rules (`Cajero`), and core platform communication (`Omega`).
-- **Conversion Funnel Auditing:** Pinpoint exact user and technical drop-offs across 4 milestones (Session Checkout -> Order Initialization -> QR Code Issuance -> Bank Settlement).
-- **Operational SLA Tracking:** Measure manual withdrawal turnaround buckets (`< 2h`, `2-24h`, `24-48h`, `> 48h`) and calculate automation ratios.
-- **Payment Recovery & Cohorts:** Map cross-payment retry behavior after transaction failures and measure retention trajectories for First Time Depositors (FTD) across 24h, 7d, 30d, 60d, and 90d intervals.
+---
+
+### 📑 Comprehensive System Architecture (Full Solution Scope)
+The production Power BI report operates as a multi-tier analytics suite covering 7 specialized reporting domains designed for Operations, Payments, and C-Level stakeholders:
+
+1. **Overview (Executive Health Scorecard):**
+   - High-level KPIs: Net Cashflow, Total Deposit/Withdrawal volumes, overall success rates, and W/D Ratio (Withdrawals to Deposits).
+   - Operational SLA monitoring: Manual withdrawal turnaround distribution across time buckets (`< 2h`, `2-24h`, `24-48h`, `> 48h`) alongside automated vs. manual processing ratios.
+
+2. **Deposit Funnel (`Depósitos Funnel`):**
+   - End-to-end 4-stage conversion tracking: Session entry -> Order creation -> PSP QR issuance -> Webhook payment settlement.
+   - Stage drop-off analysis to pinpoint user abandonment vs. network/API latency drops.
+
+3. **General Deposits (`Dep General`):**
+   - Ticket sizing histogram categorized from $1.000 to +$500.000.
+   - Dynamic statistical mode calculation for deposit amounts and longitudinal W/D ratio evolution.
+   - Multi-period variance matrices tracking MoM (Month-over-Month) and QoQ (Quarter-over-Quarter) transaction volume and financial amount delta.
+
+4. **Payment Method Breakdown (`Dep Detalle por PM`):**
+   - Granular volumetric analysis comparing approval efficiency, processing latency, and ticket sizes across individual payment rails (PIX, Debit Cards, Credit Cards, Digital Wallets, Bank Transfers).
+
+5. **Payment Retries & Recovery (`Dep Reintentos Recuperación`):**
+   - User resilience tracking following transaction failures: retry propensity rate (77.5%), latency between attempts (<30s to >10m), and successful recovery rates.
+   - Cross-Payment Method Matrix: Tracing routing switches when an original payment rail fails (e.g., Wallet -> Credit Card -> PIX).
+
+6. **Layer Failure Diagnostic (`Dep Errores de Capa`):**
+   - Root-cause architectural isolation classifying transaction failures into 4 operational tiers: `OMEGA` (core operator backend), `CAJERO` (internal cashier business rules), `PSP` (financial acquirer / bank rejection), and `ABANDONO / TIMEOUT` (expired QR codes or dropped client sessions).
+
+7. **Retention & Lifetime Value (`AVG FTD & Tiempo`):**
+   - First Time Depositor (FTD) volume, average activation amount, and MoM acquisition delta.
+   - Multi-cohort recurrence tracking calculating re-deposit conversion rates across 24-hour, 7-day, 30-day, 60-day, and 90-day intervals.
+
+---
+
+### 🖼️ Repository Showcase Scope (Exhibited Assets)
+To balance comprehensive architectural demonstration with strict intellectual property and NDA constraints, this public repository features sanitized documentation and selected visual exports from the core analytical modules:
+
+- **Data Model Architecture (`docs/data-model.png`):** Complete constellation semantic model showing table relationships, single-direction filter propagation, and conformed dimensions.
+- **Executive Overview Tab (`docs/overview.png`):** Operational scorecard, withdrawal SLA gauges, and automation ratios.
+- **General Deposits Tab (`docs/dep-general.png`):** Ticket distribution histogram, statistical mode calculation, and multi-period variance tables.
+- **Retries & Recovery Tab (`docs/dep-reintentos.png`):** User journey recovery flows, retry latency distribution, and cross-payment method conversion matrix.
+
+---
 
 ### 🏛️ Data Architecture: Constellation Schema (Galaxy Schema)
-To accommodate disparate event granularities without generating ambiguous circular relationships, the semantic model implements a **Constellation Schema** sharing conformed single-direction dimensions:
+To handle differing event granularities without circular relationship ambiguities, the data model implements a **Constellation Schema** connected through conformed, single-direction dimensions:
 
     [Dim_MetodosPago]     [Dim_Dispositivos]     [Dim_Estados]
              \                   |                   /
               \                  |                  /
-       [Fact_Transacciones]  [Fact_SLA_Retiros]  [Fact_Embudo_Depositos]
+       [Fact_Transacciones]  [Fact_SLA_Retiros]  [Fact_User_Journeys]
                  \              /       \              /
                   \            /         \            /
             [Calendario] (Role-Playing)   [Brands] (Conformed)
                    |                            |
-           [Fact_Redepositos]          [Fact_User_Journeys]
+           [Fact_Redepositos]          [Fact_Errores]
 
 #### Conformed Dimensions
-- **`Calendario`:** Formally validated date table supporting continuous time-series continuity (`Mark as Date Table`), ensuring non-broken calculations across sparse activity data.
-- **`Brands`:** Master dimension standardizing internal identifiers (`brand_id`) into operational business brands.
-- **`Dim_MetodosPago` / `Dim_Dispositivos`:** Normalized lookup entities for payment methods and hardware categories.
+- **`Calendario`:** Formally validated date table (`Mark as Date Table`) ensuring continuous time-series evaluation for *Time Intelligence* measures across sparse data frames.
+- **`Brands`:** Master lookup dimension resolving technical internal identifiers into commercial operational entities.
+- **`Dim_MetodosPago` / `Dim_Dispositivos`:** Normalized lookup entities for payment rails and hardware classifications.
 - **`Dim_Estados`:** Homogenized transactional lifecycle states (`SUCCESS`, `FAILED`, `REJECTED`, `CANCELLED`).
 
 #### Fact Tables
-- **`Fact_Transacciones`:** Aggregated volumetric table capturing daily transactional totals, amounts, and layer failure classifications.
-- **`Fact_Embudo_Depositos`:** Ordered milestone events tracking stage-by-stage checkout conversion.
+- **`Fact_Transacciones`:** Aggregated volumetric table capturing daily transactional totals, amounts, ticket buckets, and layer failure classifications.
 - **`Fact_SLA_Retiros`:** Execution records tracking automated vs. manual approval runtimes categorized by resolution buckets.
 - **`Fact_User_Journeys`:** Session-level user retry sequences mapping payment method switches upon technical failure.
 - **`Fact_Redepositos`:** Cohort recurrence metrics evaluating re-deposit intervals from initial user activation (FTD).
+- **`Fact_Errores`:** Diagnostic failure logs mapping operational bottlenecks across processing layers.
+
+---
 
 ### ⚙️ ETL & Pushdown Computation Strategy
 To preserve VertiPaq memory and optimize analytical responsiveness, transformations and aggregations are pushed down directly to the PostgreSQL instance via `Value.NativeQuery`:
 - **Server-Side Aggregations:** Raw event logs are aggregated by date, brand, device, and status at the database layer, decreasing row footprint by over 80%.
-- **Window Functions:** Implemented `ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY created_at ASC)` to detect FTD transactions directly in SQL.
-- **Time Deltas in Epochs:** Executed `EXTRACT(EPOCH FROM (event_end - event_start))` in SQL to generate clean latency metrics in seconds and hours.
-- **Error Taxonomy Engine:** Mapped unstructured JSON log payloads (`log_info->>'errorMessage'`) into definitive operational layers (`OMEGA`, `CAJERO`, `PSP`, `ABANDONO / TIMEOUT`).
+- **Window Functions & Sessionization:** Implemented `ROW_NUMBER()` and `LAG()` over transaction logs in SQL to detect consecutive retry journeys and time intervals without DAX row-by-row iteration.
+- **Time Deltas in Epochs:** Executed `EXTRACT(EPOCH FROM (event_end - event_start))` in SQL to calculate manual operational resolution latency in hours.
+- **Bucketing & Error Taxonomy:** SQL-level categorical groupings for ticket amounts and error layer classifications (`OMEGA`, `CAJERO`, `PSP`, `ABANDONO / TIMEOUT`).
 
-### 📊 Dashboard Modules & Analytical Views
-1. **Executive Overview:** High-level executive KPI scorecard displaying Net Cashflow, overall success rates, W/D Ratio (Withdrawals to Deposits), and operational SLA gauges.
-2. **Deposit Funnel:** 4-step conversion flow identifying friction between checkout entry, order creation, QR code generation, and bank payment confirmation.
-3. **Retry & Recovery Matrix:** Cross-analysis tracing user behavior after payment rejections, identifying which secondary payment methods achieve the highest recovery rates.
-4. **Retention Cohorts (FTD):** Lifecycle tracking measuring re-deposit velocity across 24h, 7d, 30d, 60d, and 90d intervals.
+---
 
 ### 📂 Repository File Structure
 
@@ -69,19 +105,21 @@ To preserve VertiPaq memory and optimize analytical responsiveness, transformati
     ├── README.md                      # Architecture and operational documentation
     ├── docs/                          # Diagram exports and dashboard visual assets
     │   ├── data-model.png             # Constellation schema diagram
-    │   ├── overview-tab.png           # Executive overview view
-    │   ├── funnel-analysis.png        # 4-Step conversion funnel
-    │   └── retries-recovery.png       # Retry routes and user journey matrix
+    │   ├── overview.png               # Executive overview view
+    │   ├── dep-general.png            # General deposits & ticket sizing view
+    │   └── dep-reintentos.png         # Payment retry and recovery matrix view
     ├── dax/                           # Documented DAX measures
     │   ├── 01_calculo_moda_dinamica.dax
     │   ├── 02_sla_distribucion_retiros.dax
     │   ├── 03_time_intelligence_mom.dax
-    │   └── 04_embudo_conversion_drops.dax
+    │   └── 04_tasa_reintento_exitoso.dax
     └── sql/                           # Native SQL queries powering the ETL
         ├── etl_fact_transacciones.sql
-        ├── etl_fact_embudo_depositos.sql
-        ├── etl_fact_redepositos.sql
-        └── etl_fact_sla_retiros.sql
+        ├── etl_fact_sla_retiros.sql
+        ├── etl_fact_user_journeys.sql
+        └── etl_fact_redepositos.sql
+
+---
 
 ### 🔒 Confidentiality & Data Sanitization
 All metrics, brand entities, and database infrastructure endpoints presented in this repository have been sanitized:
@@ -95,13 +133,51 @@ All metrics, brand entities, and database infrastructure endpoints presented in 
 ## 🇪🇸 Documentación en Español
 
 ### 📌 Resumen del Proyecto
-Solución de Business Intelligence desarrollada para supervisar la salud transaccional, embudos de conversión, acuerdos de nivel de servicio (SLA) y retención en una plataforma transaccional de pagos (*Cashier Core*) que procesa transferencias instantáneas masivas (PIX) y retiros automatizados.
+Solución de Business Intelligence desarrollada para supervisar la salud transaccional, cuellos de botella en la conversión, distribución de tickets, acuerdos de nivel de servicio (SLA) y retención en una plataforma transaccional de pagos (*Cashier Core*) que procesa pagos instantáneos (PIX) y operaciones de retiro.
 
-### 🎯 Objetivos de Negocio Implementados
-- **Confiabilidad Transaccional:** Monitoreo de tasas de aprobación, rechazo y abandono distribuidas por capa de falla: Pasarela/Banco (`PSP`), motor de interfaz/reglas (`Cajero`) y plataforma central (`Omega`).
-- **Embudo de Conversión (4 Pasos):** Identificación de caídas entre hitos (Apertura de Checkout -> Generación de Orden -> Emisión de Código QR -> Liquidación Bancaria).
-- **Supervisión de SLAs Operativos:** Medición de tiempos de resolución de retiros manuales clasificados por franjas (`< 2h`, `2-24h`, `24-48h`, `> 48h`) y cálculo de tasas de automatización.
-- **Recuperación y Retención:** Análisis del comportamiento del usuario al reintentar tras un rechazo (conmutación de método de pago) y curvas de cohortes para usuarios nuevos (FTD) a 24h, 7d, 30d, 60d y 90d.
+---
+
+### 📑 Arquitectura Integral del Sistema (Alcance Completo de la Solución)
+El reporte productivo de Power BI funciona como una suite analítica modular compuesta por 7 dominios especializados diseñados para Operaciones, Pagos y Dirección Ejecutiva:
+
+1. **Visión Ejecutiva (`Overview`):**
+   - Métricas clave de alto nivel: Net Cashflow, volúmenes totales de depósitos y retiros, tasa global de éxito y ratio Retiros/Depósitos (W/D Ratio).
+   - Supervisión operativa de SLAs: Distribución de tiempos de resolución de retiros manuales clasificados por franjas (`< 2h`, `2-24h`, `24-48h`, `> 48h`) y porcentaje de automatización.
+
+2. **Embudo de Depósitos (`Depósitos Funnel`):**
+   - Monitoreo del flujo de conversión de 4 etapas: Inicio de sesión -> Creación de orden -> Emisión de QR en pasarela -> Liquidación bancaria vía Webhook.
+   - Detección de fugas en cada hito para discriminar entre abandono de usuario y caídas de conectividad técnica.
+
+3. **Depósitos General (`Dep General`):**
+   - Histograma de tickets clasificado desde $1.000 hasta más de $500.000.
+   - Cálculo dinámico de la moda estadística (ticket más frecuente) y evolución temporal del W/D Ratio.
+   - Matriz de variaciones periódicas que audita el crecimiento mes contra mes (MoM) y trimestre contra trimestre (QoQ) en volumen e importes.
+
+4. **Detalle por Medio de Pago (`Dep Detalle por PM`):**
+   - Análisis comparativo granular de tasas de aprobación, tiempos de acreditación y montos promedio desglosados por canal financiero (PIX, Tarjetas de Débito, Tarjetas de Crédito, Billeteras Virtuales, Transferencias Bancarias).
+
+5. **Reintentos y Recuperación (`Dep Reintentos Recuperación`):**
+   - Auditoría de resiliencia del usuario ante rechazos transaccionales: propensión al reintento (77,5%), tiempo transcurrido entre intentos (<30s a >10m) y tasa de recuperación efectiva.
+   - Matriz Cross-Método: Identificación de los caminos de conmutación de métodos de pago cuando la opción original falla (ej. Billetera -> Crédito -> PIX).
+
+6. **Diagnóstico de Errores por Capa (`Dep Errores de Capa`):**
+   - Aislamiento arquitectónico de causas raíz distribuyendo las fallas en 4 niveles operativos: `OMEGA` (core del operador), `CAJERO` (reglas de negocio de la interfaz), `PSP` (rechazo bancario o del adquirente) y `ABANDONO / TIMEOUT` (expiración de códigos QR o desconexión del cliente).
+
+7. **Retención y Valor del Cliente (`AVG FTD & Tiempo`):**
+   - Volumen de primeros depósitos (FTD), ticket promedio de activación y variación mensual.
+   - Análisis de cohortes midiendo la velocidad y recurrencia de redepósito a las 24 horas, 7 días, 30 días, 60 días y 90 días.
+
+---
+
+### 🖼️ Alcance Publicado en el Portafolio (Muestra Adjunta)
+Con el propósito de conciliar la demostración de competencias técnicas avanzadas con los acuerdos de confidencialidad y propiedad intelectual (NDA), este repositorio público contiene documentación sanitizada y capturas seleccionadas de los módulos neurálgicos:
+
+- **Arquitectura del Modelo de Datos (`docs/data-model.png`):** Diagrama completo del esquema en constelación que ilustra las relaciones, el flujo unidireccional de filtros y las dimensiones conformadas.
+- **Solapa Overview (`docs/overview.png`):** Tablero ejecutivo con indicadores de salud transaccional, medidores de SLA y ratios de automatización.
+- **Solapa Depósitos General (`docs/dep-general.png`):** Histograma de tickets, cálculo de la moda estadística y matrices de variación temporal.
+- **Solapa Reintentos y Recuperación (`docs/dep-reintentos.png`):** Flujos de reintento, distribución de latencias y matriz de conmutación de medios de pago.
+
+---
 
 ### 🏛️ Arquitectura de Datos: Esquema en Constelación (Galaxy Schema)
 Para resolver los distintos niveles de granularidad sin generar ambigüedad en los filtros, el modelo semántico implementa un **Esquema en Constelación** con dimensiones conformadas de filtro unidireccional:
@@ -109,12 +185,12 @@ Para resolver los distintos niveles de granularidad sin generar ambigüedad en l
     [Dim_MetodosPago]     [Dim_Dispositivos]     [Dim_Estados]
              \                   |                   /
               \                  |                  /
-       [Fact_Transacciones]  [Fact_SLA_Retiros]  [Fact_Embudo_Depositos]
+       [Fact_Transacciones]  [Fact_SLA_Retiros]  [Fact_User_Journeys]
                  \              /       \              /
                   \            /         \            /
             [Calendario] (Role-Playing)   [Brands] (Conformed)
                    |                            |
-           [Fact_Redepositos]          [Fact_User_Journeys]
+           [Fact_Redepositos]          [Fact_Errores]
 
 #### Dimensiones Conformadas
 - **`Calendario`:** Tabla de fechas formalmente validada (`Mark as Date Table`) para garantizar la continuidad temporal de funciones *Time Intelligence* ante días sin operaciones.
@@ -123,24 +199,22 @@ Para resolver los distintos niveles de granularidad sin generar ambigüedad en l
 - **`Dim_Estados`:** Estados homologados del ciclo de vida de la transacción (`SUCCESS`, `FAILED`, `REJECTED`, `CANCELLED`).
 
 #### Tablas de Hechos (Fact Tables)
-- **`Fact_Transacciones`:** Tabla pre-agrupada que consolida recuentos, importes totales y clasificación de capas de error a nivel diario.
-- **`Fact_Embudo_Depositos`:** Registros de progresión secuencial del embudo de depósitos.
+- **`Fact_Transacciones`:** Tabla pre-agrupada que consolida recuentos, importes totales, buckets de montos y clasificación de capas de error a nivel diario.
 - **`Fact_SLA_Retiros`:** Auditoría de tiempos de aprobación operativa para retiros manuales y automáticos.
-- **`Fact_User_Journeys`:** Registro de sesiones de reintento para medir resiliencia de pago tras un error técnico o financiero.
+- **`Fact_User_Journeys`:** Registro de sesiones de reintento para medir resiliencia y caminos alternativos tras un fallo técnico o financiero.
 - **`Fact_Redepositos`:** Cohortes de recurrencia de depósitos a partir del primer depósito exitoso (FTD).
+- **`Fact_Errores`:** Registro diagnóstico de fallas agrupadas por capas operativas.
+
+---
 
 ### ⚙️ Ingeniería de Datos y Estrategia ETL Pushdown
 Para maximizar la eficiencia de memoria en VertiPaq, las transformaciones pesadas se delegan al motor relacional PostgreSQL mediante `Value.NativeQuery`:
 - **Pre-agregación en Origen:** Agrupación server-side por fecha, marca, dispositivo y estado, reduciendo el volumen de filas en más de un 80%.
-- **Funciones de Ventana:** Uso de `ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY created_at ASC)` para aislar el hito de FTD directamente en SQL.
+- **Funciones de Ventana y Sesionización:** Uso de `ROW_NUMBER()` y `LAG()` en SQL para detectar secuencias de reintento y deltas de tiempo entre intentos sin iterar en DAX.
 - **Cálculo de Tiempos en Segundos:** Uso de `EXTRACT(EPOCH FROM ...)` para calcular diferencias temporales sin sobrecargar el modelo en Power BI.
-- **Taxonomía de Errores:** Sentencias `CASE` dinámicas para clasificar logs JSON no estructurados (`log_info->>'errorMessage'`) en capas de error (`OMEGA`, `CAJERO`, `PSP`, `ABANDONO / TIMEOUT`).
+- **Agrupación y Taxonomía de Errores:** Sentencias `CASE` dinámicas para categorizar buckets de importes y capas de falla (`OMEGA`, `CAJERO`, `PSP`, `ABANDONO / TIMEOUT`).
 
-### 📊 Módulos del Tablero y Solapas Analíticas
-1. **Visión Ejecutiva (Overview):** Tarjetas KPI consolidadas de Net Cashflow, tasa global de éxito, ratio Retiros/Depósitos (W/D Ratio) y medidores de SLA en retiros manuales.
-2. **Embudo de Depósitos:** Flujo de conversión de 4 etapas que detecta puntos de fuga entre el inicio de sesión, creación de la orden, entrega del QR y confirmación bancaria.
-3. **Matriz de Reintentos y Resiliencia:** Análisis cruzado de caminos de pago alternativos que adoptan los usuarios ante rechazos bancarios o caídas de pasarela.
-4. **Cohortes de Retención (FTD):** Seguimiento del ciclo de vida del usuario midiendo la velocidad de redepósito a las 24 horas, 7 días, 30 días, 60 días y 90 días.
+---
 
 ### 📂 Estructura de Carpetas del Repositorio
 
@@ -148,19 +222,26 @@ Para maximizar la eficiencia de memoria en VertiPaq, las transformaciones pesada
     ├── README.md                      # Documentación arquitectónica y operativa
     ├── docs/                          # Exportaciones de diagramas y capturas visuales
     │   ├── data-model.png             # Captura del modelo en constelación
-    │   ├── overview-tab.png           # Captura de la vista ejecutiva
-    │   ├── funnel-analysis.png        # Embudo de conversión de 4 pasos
-    │   └── retries-recovery.png       # Matriz de rutas de reintento y recuperación
+    │   ├── overview.png               # Captura de la vista ejecutiva
+    │   ├── dep-general.png            # Captura de la vista de depósitos general
+    │   └── dep-reintentos.png         # Captura de la vista de reintentos y recuperación
     ├── dax/                           # Medidas DAX documentadas línea por línea
     │   ├── 01_calculo_moda_dinamica.dax
     │   ├── 02_sla_distribucion_retiros.dax
     │   ├── 03_time_intelligence_mom.dax
-    │   └── 04_embudo_conversion_drops.dax
+    │   └── 04_tasa_reintento_exitoso.dax
     └── sql/                           # Consultas SQL nativas aplicadas en el ETL
         ├── etl_fact_transacciones.sql
-        ├── etl_fact_embudo_depositos.sql
-        ├── etl_fact_redepositos.sql
-        └── etl_fact_sla_retiros.sql
+        ├── etl_fact_sla_retiros.sql
+        ├── etl_fact_user_journeys.sql
+        └── etl_fact_redepositos.sql
+
+---
+
+### 🔒 Confidencialidad y Sanitización de Datos
+Todos los datos, marcas e infraestructura expuestos en este repositorio han sido sometidos a un proceso de sanitización:
+- Los nombres de marcas y cadenas de conexión a bases de datos han sido anonimizados mediante pseudónimos.
+- Las capturas de pantalla presentan datos agregados con cifras normalizadas con propósitos estrictamente demostrativos de portafolio.
 
 ### 🔒 Confidencialidad y Sanitización de Datos
 Todos los datos, marcas e infraestructura expuestos en este repositorio han sido sometidos a un proceso de sanitización:
