@@ -7,7 +7,7 @@
 [![SQL](https://img.shields.io/badge/SQL-Window_Functions-blue?style=flat)](https://en.wikipedia.org/wiki/SQL)
 [![License: Proprietary](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg)](LICENSE.md)
 
-[English Version](#english-documentation) | [Versión en Español](#documentación-en-español)
+
 
 ---
 
@@ -30,7 +30,7 @@ A production-grade Business Intelligence platform developed to monitor transacti
 ### 🏛️ Data Architecture: Constellation Schema (Galaxy Schema)
 To accommodate disparate event granularities without generating ambiguous circular relationships, the semantic model implements a **Constellation Schema** sharing conformed single-direction dimensions:
 
-```text
+
        [Dim_MetodosPago]     [Dim_Dispositivos]     [Dim_Estados]
                 \                   |                   /
                  \                  |                  /
@@ -99,3 +99,4 @@ All metrics, brand entities, and database infrastructure endpoints presented in 
 Sensitive brand names and server connection strings have been replaced with anonymous placeholders.
 
 Visual dashboards exhibit aggregated metrics with normalized numerical values strictly for technical portfolio display.
+
