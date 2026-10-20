@@ -243,7 +243,3 @@ Todos los datos, marcas e infraestructura expuestos en este repositorio han sido
 - Los nombres de marcas y cadenas de conexión a bases de datos han sido anonimizados mediante pseudónimos.
 - Las capturas de pantalla presentan datos agregados con cifras normalizadas con propósitos estrictamente demostrativos de portafolio.
 
-### 🔒 Confidencialidad y Sanitización de Datos
-Todos los datos, marcas e infraestructura expuestos en este repositorio han sido sometidos a un proceso de sanitización:
-- Los nombres de marcas y cadenas de conexión a bases de datos han sido anonimizados mediante pseudónimos.
-- Las capturas de pantalla presentan datos agregados con cifras normalizadas con propósitos estrictamente demostrativos de portafolio.
