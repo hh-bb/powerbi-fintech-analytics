@@ -1,0 +1,31 @@
+/*
+==============================================================================
+MEASURE / MEDIDA: Tasa_Aceptacion_Var_pp
+------------------------------------------------------------------------------
+[EN] Objective: Month-over-Month (MoM) change in percentage points for acceptance rate.
+     Technique: Evaluates across validated canonical Date Table to prevent gaps.
+[ES] Objetivo: Variación mensual en puntos porcentuales (MoM) de tasa de aceptación.
+     Técnica: Evaluación estricta sobre tabla Calendario contigua ('Mark as Date Table').
+==============================================================================
+*/
+Tasa_Aceptacion_Var_pp = 
+// 1. [EN] Current period acceptance rate
+//    [ES] Tasa de aceptación del período seleccionado
+VAR Tasa_Actual = [Tasa_Aceptacion_Retiros]
+
+// 2. [EN] Previous month acceptance rate evaluated on continuous calendar
+//    [ES] Tasa del mes anterior evaluada sobre la dimensión temporal continua
+VAR Tasa_Anterior = 
+    CALCULATE(
+        [Tasa_Aceptacion_Retiros], 
+        DATEADD('Calendario'[date], -1, MONTH)
+    )
+
+// 3. [EN] Net difference in percentage points
+//    [ES] Diferencia neta en puntos porcentuales
+RETURN 
+    IF(
+        NOT ISBLANK(Tasa_Actual) && NOT ISBLANK(Tasa_Anterior), 
+        Tasa_Actual - Tasa_Anterior, 
+        BLANK()
+    )
