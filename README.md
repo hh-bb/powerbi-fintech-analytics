@@ -1,4 +1,4 @@
-# 💳 Cashier Core Analytics — End-to-End Fintech BI Solution
+# Cashier Core Analytics — End-to-End Fintech BI Solution
 *Auditoría Transaccional, Embudos de Conversión, Recuperación y SLAs Operativos*
 
 [![Power BI](https://img.shields.io/badge/Power_BI-Desktop-F2C811?style=flat&logo=powerbi&logoColor=black)](https://powerbi.microsoft.com/)
