@@ -1,0 +1,35 @@
+/*
+==============================================================================
+MEASURE / MEDIDA: SLA_Porcentaje_2h
+------------------------------------------------------------------------------
+[EN] Objective: Calculate compliance ratio for manual withdrawals resolved in < 2h.
+     Technique: REMOVEFILTERS breaks visual context to redefine the manual baseline.
+[ES] Objetivo: Medir porcentaje de cumplimiento de retiros manuales resueltos en < 2h.
+     Técnica: REMOVEFILTERS anula el contexto visual para definir la base manual total.
+==============================================================================
+*/
+SLA_Porcentaje_2h = 
+// 1. [EN] Numerator: Manual withdrawals completed under 2 hours
+//    [ES] Numerador: Retiros manuales resueltos en menos de 2 horas
+VAR Numerador = 
+    COALESCE(
+        CALCULATE(
+            SUM('Fact_SLA_Retiros'[withdrawal_count]), 
+            'Fact_SLA_Retiros'[manual_sla_bucket] = "< 2h"
+        ), 
+        0
+    )
+
+// 2. [EN] Denominator: Total manual withdrawals (excluding automated N/A)
+//    [ES] Denominador: Total acumulado de retiros manuales (excluyendo automáticos)
+VAR Denominador = 
+    CALCULATE(
+        SUM('Fact_SLA_Retiros'[withdrawal_count]), 
+        REMOVEFILTERS('Fact_SLA_Retiros'[manual_sla_bucket]),
+        'Fact_SLA_Retiros'[manual_sla_bucket] IN {"< 2h", "2-24h", "24-48h", "> 48h"}
+    )
+
+// 3. [EN] Safe division preventing zero-division runtime errors
+//    [ES] División segura libre de errores por división por cero
+RETURN 
+    DIVIDE(Numerador, Denominador, 0)
